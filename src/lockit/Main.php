@@ -47,8 +47,9 @@ class Main extends PluginBase implements CommandExecutor, Listener {
     public function onCommand(CommandSender $sender, Command $cmd, $label, array $args) {
         if ($sender instanceof Player) {
 
-            if (!isset($args[0])) return false;
-            
+            if (!isset($args[0]))
+                return false;
+
             switch ($args[0]) {
 
                 case "off":
@@ -86,7 +87,7 @@ class Main extends PluginBase implements CommandExecutor, Listener {
     }
 
     public function onPlayerInteract(PlayerInteractEvent $event) {
-        
+
         if (!($event->getBlock()->getId() === 71 )) {
             return;
         }
@@ -94,10 +95,10 @@ class Main extends PluginBase implements CommandExecutor, Listener {
         if (isset($this->session[$event->getPlayer()->getName()])) {
 
             // if it's someone who is locking doors...
-if ($event->getBlock()->getLevel()->getBlock(new vector3($event->getBlock()->getX(),$event->getBlock()->getY() - 1,$event->getBlock()->getZ()))->getId() === 71){
-    $event->getPlayer()->sendMessage(TEXTFORMAT::RED . "Please Tap The Bootom Of The Door");
-    return;
-}
+            if ($event->getBlock()->getLevel()->getBlock(new vector3($event->getBlock()->getX(), $event->getBlock()->getY() - 1, $event->getBlock()->getZ()))->getId() === 71) {
+                $event->getPlayer()->sendMessage(TEXTFORMAT::RED . "Please Tap The Bootom Of The Door");
+                return;
+            }
             $block = $event->getBlock();
             $keyid = $this->session[$event->getPlayer()->getName()];
 
@@ -112,77 +113,73 @@ if ($event->getBlock()->getLevel()->getBlock(new vector3($event->getBlock()->get
             $event->setCancelled(true);
             return true;
         } else {
-            
+
             // regular player taps a door, check above and below
             //Check Item in Hand INVENTORY
-            
+
             $block = $event->getBlock();
             $inv = $event->getPlayer()->getInventory();
             $inhand = $inv->getItemInHand();
-            
+
             //CHECK THE BLOCK ITSELF
-            
-                if (isset($this->locked[$event->getBlock()->x . ":" . $event->getBlock()->y . ":" . $event->getBlock()->z . ":" . $event->getPlayer()->getLevel()->getName()])) {
+
+            if (isset($this->locked[$event->getBlock()->x . ":" . $event->getBlock()->y . ":" . $event->getBlock()->z . ":" . $event->getPlayer()->getLevel()->getName()])) {
                 //it's a locked door
 
                 $locked = $this->locked[$event->getBlock()->x . ":" . $event->getBlock()->y . ":" . $event->getBlock()->z . ":" . $event->getPlayer()->getLevel()->getName()];
                 $keyid = $locked["keyid"];
 
                 if ($inhand->getId() == $keyid) {
-                    if($this->prefs->get("TakeKey")){
-                    --$inhand->count;
-                    $inv->setItemInHand($inhand);  
-                    } 
-                    
-                    //open door for DELAY seconds
-                    
-                    if($this->prefs->get("AutoClose")){
-                        
-                    $task = new CloseTask($this, $block, false);
-                    $taskid = $this->getServer()->getScheduler()->scheduleDelayedTask($task, 20 * $this->prefs->get("Delay"));
-                    $task->setHandler($taskid);
+                    if ($this->prefs->get("TakeKey")) {
+                        --$inhand->count;
+                        $inv->setItemInHand($inhand);
                     }
-                    
+
+                    //open door for DELAY seconds
+
+                    if ($this->prefs->get("AutoClose")) {
+
+                        $task = new CloseTask($this, $block, false);
+                        $taskid = $this->getServer()->getScheduler()->scheduleDelayedTask($task, 20 * $this->prefs->get("Delay"));
+                        $task->setHandler($taskid);
+                    }
+
                     return;
-                    
                 } else {
                     $event->getPlayer()->sendMessage(TextFormat::RED . "You don't have the key ");
                     $event->setCancelled(true);
                 }
             }
-            
+
             //CHECK THE BLOCK BELOW
-            
-                if (isset($this->locked[$event->getBlock()->x . ":" . ($event->getBlock()->y - 1) . ":" . $event->getBlock()->z . ":" . $event->getPlayer()->getLevel()->getName()])) {
+
+            if (isset($this->locked[$event->getBlock()->x . ":" . ($event->getBlock()->y - 1) . ":" . $event->getBlock()->z . ":" . $event->getPlayer()->getLevel()->getName()])) {
                 //it's a locked door
 
                 $locked = $this->locked[$event->getBlock()->x . ":" . ($event->getBlock()->y - 1) . ":" . $event->getBlock()->z . ":" . $event->getPlayer()->getLevel()->getName()];
                 $keyid = $locked["keyid"];
 
                 if ($inhand->getId() == $keyid) {
-                    if($this->prefs->get("TakeKey")){
-                    --$inhand->count;
-                    $inv->setItemInHand($inhand);  
-                    } 
-                    
-                    //open door for DELAY seconds
-                    
-                    if($this->prefs->get("AutoClose")){
-                        
-                    $task = new CloseTask($this, $block, true);
-                    $taskid = $this->getServer()->getScheduler()->scheduleDelayedTask($task, 20 * $this->prefs->get("Delay"));
-                    $task->setHandler($taskid);
+                    if ($this->prefs->get("TakeKey")) {
+                        --$inhand->count;
+                        $inv->setItemInHand($inhand);
                     }
-                    
+
+                    //open door for DELAY seconds
+
+                    if ($this->prefs->get("AutoClose")) {
+
+                        $task = new CloseTask($this, $block, true);
+                        $taskid = $this->getServer()->getScheduler()->scheduleDelayedTask($task, 20 * $this->prefs->get("Delay"));
+                        $task->setHandler($taskid);
+                    }
+
                     return;
-                    
                 } else {
                     $event->getPlayer()->sendMessage(TextFormat::RED . "You don't have the key ");
                     $event->setCancelled(true);
                 }
             }
-            
-
         }
     }
 
