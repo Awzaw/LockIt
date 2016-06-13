@@ -27,7 +27,8 @@ class CloseTask extends PluginTask {
         $newdoor = Block::get(Item::IRON_DOOR_BLOCK);
         
             $this->block->getLevel()->setBlock(new Vector3($this->block->getX(), $this->block->getY(), $this->block->getZ()), $this->block);  
-            unset ($this->plugin->tasks[spl_object_hash($this->block)]);
+            $taskstring = $this->block->getX() . ":" . $this->block->getY() . ":" . $this->block->getZ() . ":" . $this->block->getLevel()->getName();
+            unset ($this->getOwner()->tasks[$taskstring]);
 
     }
 

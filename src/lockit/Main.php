@@ -127,12 +127,18 @@ class Main extends PluginBase implements CommandExecutor, Listener {
             if (isset($this->locked[$event->getBlock()->x . ":" . $event->getBlock()->y . ":" . $event->getBlock()->z . ":" . $event->getPlayer()->getLevel()->getName()])) {
                 //it's a locked door
 
+                $taskstring = $event->getBlock()->x . ":" . ($event->getBlock()->y) . ":" . $event->getBlock()->z . ":" . $event->getPlayer()->getLevel()->getName();
+
+                if (in_array($taskstring, $this->tasks)) {
+                    $event->setCancelled(true);
+                    return;
+                }
+
                 $locked = $this->locked[$event->getBlock()->x . ":" . $event->getBlock()->y . ":" . $event->getBlock()->z . ":" . $event->getPlayer()->getLevel()->getName()];
                 $keyid = $locked["keyid"];
- 
+
                 $event->getPlayer()->sendMessage(TextFormat::RED . "Click the Door's Top Panel To Unlock");
                 $event->setCancelled(true);
-                
             }
 
             //CHECK IF IT IS THE TOP PANEL
@@ -144,24 +150,29 @@ class Main extends PluginBase implements CommandExecutor, Listener {
                 $keyid = $locked["keyid"];
 
                 if ($inhand->getId() == $keyid) {
+                    //open door for DELAY seconds
+
+                    if ($this->prefs->get("AutoClose")) {
+                        $belowblock = $block->getLevel()->getBlock(new Vector3($event->getBlock()->getX(), $event->getBlock()->getY() - 1, $event->getBlock()->getZ()));
+                        $taskstring = $event->getBlock()->x . ":" . ($event->getBlock()->y - 1) . ":" . $event->getBlock()->z . ":" . $event->getPlayer()->getLevel()->getName();
+
+                        if (!(in_array($taskstring, $this->tasks))) {
+
+                            $task = new CloseTask($this, $belowblock);
+                            $taskid = $this->getServer()->getScheduler()->scheduleDelayedTask($task, 20 * $this->prefs->get("Delay"));
+                            $task->setHandler($taskid);
+                            $this->tasks[$taskstring] = $taskstring;
+                        } else {
+                            $event->setCancelled(true);
+                            return;
+                        }
+                    }
+
                     if ($this->prefs->get("TakeKey")) {
                         --$inhand->count;
                         $inv->setItemInHand($inhand);
                     }
 
-                    //open door for DELAY seconds
-
-                    if ($this->prefs->get("AutoClose")) {
-                    $belowblock =  $block->getLevel()->getBlock(new Vector3($event->getBlock()->getX(), $event->getBlock()->getY() - 1, $event->getBlock()->getZ()));  
-                    if (!in_array($belowblock, $this->tasks)){
-                        
-                        $task = new CloseTask($this, $belowblock);
-                        $taskid = $this->getServer()->getScheduler()->scheduleDelayedTask($task, 20 * $this->prefs->get("Delay"));
-                        $task->setHandler($taskid);
-                        $this->tasks[] = spl_object_hash($belowblock);
-                        
-                                           }
-                    }
 
                     return;
                 } else {
