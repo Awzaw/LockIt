@@ -31,7 +31,7 @@ class CloseTask extends PluginTask {
         
         }else{
          $this->block->getLevel()->setBlock(new Vector3($this->block->getX(), ($this->block->getY() - 1), $this->block->getZ()), Block::get(Item::IRON_DOOR_BLOCK));
-           
+        
         }
         
         }
