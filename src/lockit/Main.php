@@ -21,9 +21,9 @@ use pocketmine\event\block\BlockBreakEvent;
 class Main extends PluginBase implements CommandExecutor, Listener {
 
     private $session;
-    public $prefs;
-    public $locked;
-    public $treasure;
+    private $prefs;
+    private $locked;
+    public $tasks;
 
     public function onEnable() {
         if (!file_exists($this->getDataFolder())) {
@@ -31,6 +31,7 @@ class Main extends PluginBase implements CommandExecutor, Listener {
         }
 
         $this->session = [];
+        $this->tasks = [];
 
         $this->prefs = new Config($this->getDataFolder() . "prefs.yml", CONFIG::YAML, array(
             "TakeKey" => true,
@@ -128,30 +129,13 @@ class Main extends PluginBase implements CommandExecutor, Listener {
 
                 $locked = $this->locked[$event->getBlock()->x . ":" . $event->getBlock()->y . ":" . $event->getBlock()->z . ":" . $event->getPlayer()->getLevel()->getName()];
                 $keyid = $locked["keyid"];
-
-                if ($inhand->getId() == $keyid) {
-                    if ($this->prefs->get("TakeKey")) {
-                        --$inhand->count;
-                        $inv->setItemInHand($inhand);
-                    }
-
-                    //open door for DELAY seconds
-
-                    if ($this->prefs->get("AutoClose")) {
-
-                        $task = new CloseTask($this, $block, false);
-                        $taskid = $this->getServer()->getScheduler()->scheduleDelayedTask($task, 20 * $this->prefs->get("Delay"));
-                        $task->setHandler($taskid);
-                    }
-
-                    return;
-                } else {
-                    $event->getPlayer()->sendMessage(TextFormat::RED . "You don't have the key ");
-                    $event->setCancelled(true);
-                }
+ 
+                $event->getPlayer()->sendMessage(TextFormat::RED . "Click the Door's Top Panel To Unlock");
+                $event->setCancelled(true);
+                
             }
 
-            //CHECK THE BLOCK BELOW
+            //CHECK IF IT IS THE TOP PANEL
 
             if (isset($this->locked[$event->getBlock()->x . ":" . ($event->getBlock()->y - 1) . ":" . $event->getBlock()->z . ":" . $event->getPlayer()->getLevel()->getName()])) {
                 //it's a locked door
@@ -168,10 +152,15 @@ class Main extends PluginBase implements CommandExecutor, Listener {
                     //open door for DELAY seconds
 
                     if ($this->prefs->get("AutoClose")) {
-
-                        $task = new CloseTask($this, $block, true);
+                    $belowblock =  $block->getLevel()->getBlock(new Vector3($event->getBlock()->getX(), $event->getBlock()->getY() - 1, $event->getBlock()->getZ()));  
+                    if (!in_array($belowblock, $this->tasks)){
+                        
+                        $task = new CloseTask($this, $belowblock);
                         $taskid = $this->getServer()->getScheduler()->scheduleDelayedTask($task, 20 * $this->prefs->get("Delay"));
                         $task->setHandler($taskid);
+                        $this->tasks[] = spl_object_hash($belowblock);
+                        
+                                           }
                     }
 
                     return;
