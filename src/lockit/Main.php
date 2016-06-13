@@ -94,7 +94,10 @@ class Main extends PluginBase implements CommandExecutor, Listener {
         if (isset($this->session[$event->getPlayer()->getName()])) {
 
             // if it's someone who is locking doors...
-
+if ($event->getBlock()->getLevel()->getBlock(new vector3($event->getBlock()->getX(),$event->getBlock()->getY() - 1,$event->getBlock()->getZ()))->getId() === 71){
+    $event->getPlayer()->sendMessage(TEXTFORMAT::RED . "Please Tap The Bootom Of The Door");
+    return;
+}
             $block = $event->getBlock();
             $keyid = $this->session[$event->getPlayer()->getName()];
 
