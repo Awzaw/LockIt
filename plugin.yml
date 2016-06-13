@@ -1,0 +1,19 @@
+name: LockIt
+main: lockit\Main
+version: 1.0.0
+author: Awzaw
+api:
+- 1.13.0
+- 1.14.0
+- 2.0.0
+load: POSTWORLD
+commands:
+ lockit:
+  permission: lockit
+  description: Lock Doors
+  usage: /lockit then tap a door
+permissions:
+   lockit.admin:
+    default: op
+   lockit:
+    default: op
