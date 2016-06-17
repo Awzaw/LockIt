@@ -196,7 +196,7 @@ class Main extends PluginBase implements CommandExecutor, Listener {
     public function onBlockBreak(BlockBreakEvent $event) {
         $block = $event->getBlock();
 
-        if (!($block->getID() === 71  || $block->getID() === 64 ))
+        if (!($block->getID() === 71  || ($block->getID() === 64) && $this->prefs->get("AllDoors")))
             return;
 
         if (isset($this->locked[$block->getX() . ":" . $block->getY() . ":" . $block->getZ() . ":" . $block->getLevel()->getFolderName()])) {
