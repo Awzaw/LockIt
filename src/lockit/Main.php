@@ -89,7 +89,7 @@ class Main extends PluginBase implements CommandExecutor, Listener {
 
     public function onPlayerInteract(PlayerInteractEvent $event) {
 
-        if (!($event->getBlock()->getId() === 71 || $event->getBlock()->getId() === 64 )) {
+        if (!($event->getBlock()->getId() === 71 || ($event->getBlock()->getId() === 64) && $this->prefs->get("AllDoors"))) {
             return;
         }
 
@@ -97,7 +97,7 @@ class Main extends PluginBase implements CommandExecutor, Listener {
 
             $doorid = $event->getBlock()->getLevel()->getBlock(new vector3($event->getBlock()->getX(), $event->getBlock()->getY() - 1, $event->getBlock()->getZ()))->getId();
             // if it's someone who is locking doors...
-            if ($doorid === 71 || $doorid === 64) {
+            if ($doorid === 71 || ($doorid === 64 && $this->prefs->get("AllDoors"))) {
                 $event->getPlayer()->sendMessage(TEXTFORMAT::RED . "Please Tap The Bootom Of The Door");
                 return;
             }
