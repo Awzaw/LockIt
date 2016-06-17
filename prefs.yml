@@ -2,5 +2,6 @@
 TakeKey: true
 AutoClose: true
 Delay: 5
+AllDoors: true
 ...
 
