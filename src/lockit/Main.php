@@ -36,6 +36,7 @@ class Main extends PluginBase implements CommandExecutor, Listener {
         $this->prefs = new Config($this->getDataFolder() . "prefs.yml", CONFIG::YAML, array(
             "TakeKey" => true,
             "AutoClose" => true,
+            "AllDoors" => true,
             "Delay" => 5
         ));
 
@@ -48,14 +49,19 @@ class Main extends PluginBase implements CommandExecutor, Listener {
     public function onCommand(CommandSender $sender, Command $cmd, $label, array $args) {
         if ($sender instanceof Player) {
 
-            if (!isset($args[0]))
-                return false;
+            if (!isset($args[0])){
+            $sender->sendMessage(TEXTFORMAT::RED . "Type /lockit ID to change key or /lockit off");   
+            return true;
+            }
+
 
             switch ($args[0]) {
 
                 case "off":
                 case "stop":
+                    if (isset($this->session[$sender->getPlayer()->getName()]))
                     unset($this->session[$sender->getPlayer()->getName()]);
+                    
                     $sender->sendMessage(TEXTFORMAT::RED . "LockIt Tap Mode : OFF");
 
                     return true;
@@ -89,7 +95,7 @@ class Main extends PluginBase implements CommandExecutor, Listener {
 
     public function onPlayerInteract(PlayerInteractEvent $event) {
 
-        if (!($event->getBlock()->getId() === 71 || ($event->getBlock()->getId() === 64) && $this->prefs->get("AllDoors"))) {
+        if (!($event->getBlock()->getId() === 71 || (($event->getBlock()->getId() === 64) && $this->prefs->get("AllDoors")))) {
             return;
         }
 
@@ -180,8 +186,8 @@ class Main extends PluginBase implements CommandExecutor, Listener {
                         $newbit = $belowblock->getDamage() ^ 0x4;
                         $belowblock->setDamage($newbit);
                         $done = $event->getBlock()->getLevel()->setBlock(new Vector3($belowblock->getX(), $belowblock->getY(), $belowblock->getZ()), clone $belowblock, true, true);
-                        echo ("Block Set: " . $done . "\n");
-                    }
+                   
+                        }
 
 
                     return;

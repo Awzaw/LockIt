@@ -29,17 +29,13 @@ class CloseTask extends PluginTask {
  
 //                      try closing it?
 //            
-                        echo("Damage before\n");
-                        var_dump($this->block->getDamage());
                         $newbit = $this->block->getDamage() ^0x4;
                         $this->block->setDamage($newbit);
-                        echo("Damage after\n");
-                        var_dump($this->block->getDamage());
                         
                         $this->block->getLevel()->addSound(new DoorSound($this->block));
 
         $this->block->getLevel()->setBlock(new Vector3($this->block->getX(), $this->block->getY(), $this->block->getZ()), $this->block, true);
-
+        var_dump($this->block->getDamage());
         $taskstring = $this->block->getX() . ":" . $this->block->getY() . ":" . $this->block->getZ() . ":" . $this->block->getLevel()->getName();
         unset($this->getOwner()->tasks[$taskstring]);
     }
