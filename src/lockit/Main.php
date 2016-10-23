@@ -1,12 +1,11 @@
 <?php
 
-namespace LockIt;
+namespace lockit;
 
 use pocketmine\command\Command;
 use pocketmine\command\CommandExecutor;
 use pocketmine\command\CommandSender;
 use pocketmine\Player;
-use pocketmine\Server;
 use pocketmine\plugin\PluginBase;
 use pocketmine\utils\Config;
 use pocketmine\event\Listener;
@@ -14,8 +13,6 @@ use pocketmine\event\player\PlayerInteractEvent;
 use pocketmine\math\Vector3;
 use pocketmine\utils\TextFormat;
 use pocketmine\item\Item;
-use pocketmine\item\ItemBlock;
-use pocketmine\block\Block;
 use pocketmine\event\block\BlockBreakEvent;
 
 class Main extends PluginBase implements CommandExecutor, Listener {
