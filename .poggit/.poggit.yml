@@ -1,7 +1,0 @@
----
-branches: master
-projects:
-  LockIt:
-    path: ""
-    model: default
-...
