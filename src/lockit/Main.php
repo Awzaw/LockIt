@@ -46,19 +46,18 @@ class Main extends PluginBase implements CommandExecutor, Listener {
     public function onCommand(CommandSender $sender, Command $cmd, $label, array $args) {
         if ($sender instanceof Player) {
 
-            if (!isset($args[0])){
-            $sender->sendMessage(TEXTFORMAT::RED . "Type /lockit ID to change key or /lockit off");   
-            return true;
+            if (!isset($args[0])) {
+                $sender->sendMessage(TEXTFORMAT::RED . "Type /lockit ID to change key or /lockit off");
+                return true;
             }
-
 
             switch ($args[0]) {
 
                 case "off":
                 case "stop":
                     if (isset($this->session[$sender->getPlayer()->getName()]))
-                    unset($this->session[$sender->getPlayer()->getName()]);
-                    
+                        unset($this->session[$sender->getPlayer()->getName()]);
+
                     $sender->sendMessage(TEXTFORMAT::RED . "LockIt Tap Mode : OFF");
 
                     return true;
@@ -67,8 +66,6 @@ class Main extends PluginBase implements CommandExecutor, Listener {
                 default:
                     break;
             }
-
-
 
             if (!is_numeric($args[0])) {
                 $sender->sendMessage("Invalid ID number");
@@ -119,7 +116,7 @@ class Main extends PluginBase implements CommandExecutor, Listener {
             return true;
         } else {
 
-            // regular player taps a door, check above and below
+            //Regular player taps a door, check above and below
             //Check Item in Hand INVENTORY
 
             $block = $event->getBlock();
@@ -156,7 +153,7 @@ class Main extends PluginBase implements CommandExecutor, Listener {
                 if ($inhand->getId() == $keyid) {
                     //open door for DELAY seconds
 
-                $belowblock = $block->getLevel()->getBlock(new Vector3($event->getBlock()->getX(), $event->getBlock()->getY() - 1, $event->getBlock()->getZ()));
+                    $belowblock = $block->getLevel()->getBlock(new Vector3($event->getBlock()->getX(), $event->getBlock()->getY() - 1, $event->getBlock()->getZ()));
 
                     if ($this->prefs->get("AutoClose")) {
                         $taskstring = $event->getBlock()->x . ":" . ($event->getBlock()->y - 1) . ":" . $event->getBlock()->z . ":" . $event->getPlayer()->getLevel()->getName();
@@ -176,16 +173,14 @@ class Main extends PluginBase implements CommandExecutor, Listener {
                     if ($this->prefs->get("TakeKey")) {
                         --$inhand->count;
                         $inv->setItemInHand($inhand);
-                       
+
 //                      CHANGE DOOR OPEN/CLOSE MANUALLY??
-                        
+
                         var_dump($belowblock->getDamage());
                         $newbit = $belowblock->getDamage() ^ 0x4;
                         $belowblock->setDamage($newbit);
                         $done = $event->getBlock()->getLevel()->setBlock(new Vector3($belowblock->getX(), $belowblock->getY(), $belowblock->getZ()), clone $belowblock, true, true);
-                   
-                        }
-
+                    }
 
                     return;
                 } else {
@@ -199,7 +194,7 @@ class Main extends PluginBase implements CommandExecutor, Listener {
     public function onBlockBreak(BlockBreakEvent $event) {
         $block = $event->getBlock();
 
-        if (!($block->getID() === 71  || ($block->getID() === 64) && $this->prefs->get("AllDoors")))
+        if (!($block->getID() === 71 || ($block->getID() === 64) && $this->prefs->get("AllDoors")))
             return;
 
         if (isset($this->locked[$block->getX() . ":" . $block->getY() . ":" . $block->getZ() . ":" . $block->getLevel()->getFolderName()])) {

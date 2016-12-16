@@ -1,12 +1,9 @@
 <?php
 
-namespace LockIt;
+namespace lockit;
 
 use pocketmine\scheduler\PluginTask;
 use pocketmine\math\Vector3;
-use pocketmine\item\Item;
-use pocketmine\tile\Chest;
-use pocketmine\level\Level;
 use pocketmine\block\Block;
 use pocketmine\level\sound\DoorSound;
 
@@ -24,18 +21,14 @@ class CloseTask extends PluginTask {
 
     public function onRun($tick) {
 
-        //$this->block->getLevel()->setBlock($this->block, Block::get(Item::IRON_DOOR_BLOCK));
         $newdoor = Block::get($this->block->getId());
- 
-//                      try closing it?
-//            
-                        $newbit = $this->block->getDamage() ^0x4;
-                        $this->block->setDamage($newbit);
-                        
-                        $this->block->getLevel()->addSound(new DoorSound($this->block));
+
+        $newbit = $this->block->getDamage() ^ 0x4;
+        $this->block->setDamage($newbit);
+
+        $this->block->getLevel()->addSound(new DoorSound($this->block));
 
         $this->block->getLevel()->setBlock(new Vector3($this->block->getX(), $this->block->getY(), $this->block->getZ()), $this->block, true);
-        var_dump($this->block->getDamage());
         $taskstring = $this->block->getX() . ":" . $this->block->getY() . ":" . $this->block->getZ() . ":" . $this->block->getLevel()->getName();
         unset($this->getOwner()->tasks[$taskstring]);
     }
