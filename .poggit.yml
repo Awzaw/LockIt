@@ -3,5 +3,6 @@ branches: master
 projects:
   LockIt:
     path: ""
+    icon: lockit.png
     model: default
 ...
