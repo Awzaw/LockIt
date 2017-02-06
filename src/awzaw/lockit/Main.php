@@ -1,6 +1,6 @@
 <?php
 
-namespace lockit;
+namespace awzaw\lockit;
 
 use pocketmine\command\Command;
 use pocketmine\command\CommandExecutor;

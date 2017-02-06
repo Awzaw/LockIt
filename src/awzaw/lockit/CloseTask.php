@@ -1,6 +1,6 @@
 <?php
 
-namespace lockit;
+namespace awzaw\lockit;
 
 use pocketmine\scheduler\PluginTask;
 use pocketmine\math\Vector3;
