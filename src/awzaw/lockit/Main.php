@@ -178,7 +178,6 @@ class Main extends PluginBase implements CommandExecutor, Listener {
 
 //                      CHANGE DOOR OPEN/CLOSE MANUALLY??
 
-                        var_dump($belowblock->getDamage());
                         $newbit = $belowblock->getDamage() ^ 0x4;
                         $belowblock->setDamage($newbit);
                         $done = $event->getBlock()->getLevel()->setBlock(new Vector3($belowblock->getX(), $belowblock->getY(), $belowblock->getZ()), clone $belowblock, true, true);
