@@ -18,6 +18,7 @@ use pocketmine\block\BlockIds;
 
 class Main extends PluginBase implements CommandExecutor, Listener {
 
+    const DOORIDS = [BlockIds::IRON_DOOR_BLOCK, BlockIds::SPRUCE_DOOR_BLOCK, BlockIds::BIRCH_DOOR_BLOCK, BlockIds::JUNGLE_DOOR_BLOCK, BlockIds::ACACIA_DOOR_BLOCK, BlockIds::DARK_OAK_DOOR_BLOCK];
     private $session;
     private $prefs;
     private $locked;
@@ -90,7 +91,7 @@ class Main extends PluginBase implements CommandExecutor, Listener {
 
     public function onPlayerInteract(PlayerInteractEvent $event) {
         if ($event->isCancelled()) return;
-        if (!($event->getBlock()->getId() === BlockIds::IRON_DOOR_BLOCK || (($event->getBlock()->getId() === BlockIds::DOOR_BLOCK) && $this->prefs->get("AllDoors")))) {
+        if (!($event->getBlock()->getId() === BlockIds::IRON_DOOR_BLOCK || (in_array($event->getBlock()->getId(), self::DOORIDS) && $this->prefs->get("AllDoors")))) {
             return;
         }
 
@@ -98,7 +99,7 @@ class Main extends PluginBase implements CommandExecutor, Listener {
 
             $doorid = $event->getBlock()->getLevel()->getBlock(new vector3($event->getBlock()->getX(), $event->getBlock()->getY() - 1, $event->getBlock()->getZ()))->getId();
             // if it's someone who is locking doors...
-            if ($doorid === BlockIds::IRON_DOOR_BLOCK || ($doorid === BlockIds::DOOR_BLOCK && $this->prefs->get("AllDoors"))) {
+            if ($doorid === BlockIds::IRON_DOOR_BLOCK || (in_array($doorid, self::DOORIDS) && $this->prefs->get("AllDoors"))) {
                 $event->getPlayer()->sendMessage(TEXTFORMAT::RED . "Please Tap The Bootom Of The Door");
                 return;
             }
@@ -196,7 +197,7 @@ class Main extends PluginBase implements CommandExecutor, Listener {
         if ($event->isCancelled()) return;
         $block = $event->getBlock();
 
-        if (!($block->getID() === BlockIds::IRON_DOOR_BLOCK || ($block->getID() === BlockIds::DOOR_BLOCK) && $this->prefs->get("AllDoors")))
+        if (!($block->getID() === BlockIds::IRON_DOOR_BLOCK || (in_array($event->getBlock()->getId(), self::DOORIDS)) && $this->prefs->get("AllDoors")))
             return;
 
         if (isset($this->locked[$block->getX() . ":" . $block->getY() . ":" . $block->getZ() . ":" . $block->getLevel()->getFolderName()])) {
