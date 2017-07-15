@@ -19,7 +19,7 @@ class CloseTask extends PluginTask {
         $this->block = $block;
     }
 
-    public function onRun($tick) {
+    public function onRun(int $tick) {
 
         $newdoor = Block::get($this->block->getId());
 

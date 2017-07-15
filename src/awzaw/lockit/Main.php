@@ -45,7 +45,7 @@ class Main extends PluginBase implements CommandExecutor, Listener {
         $this->getServer()->getPluginManager()->registerEvents($this, $this);
     }
 
-    public function onCommand(CommandSender $sender, Command $cmd, $label, array $args) {
+    public function onCommand(CommandSender $sender, Command $cmd, string $label, array $args) : bool {
         if ($sender instanceof Player) {
 
             if (!isset($args[0])) {
