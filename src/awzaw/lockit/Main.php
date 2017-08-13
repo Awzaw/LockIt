@@ -18,7 +18,7 @@ use pocketmine\block\BlockIds;
 
 class Main extends PluginBase implements CommandExecutor, Listener {
 
-    const DOORIDS = [BlockIds::IRON_DOOR_BLOCK, BlockIds::SPRUCE_DOOR_BLOCK, BlockIds::BIRCH_DOOR_BLOCK, BlockIds::JUNGLE_DOOR_BLOCK, BlockIds::ACACIA_DOOR_BLOCK, BlockIds::DARK_OAK_DOOR_BLOCK];
+    const DOORIDS = [BlockIds::IRON_DOOR_BLOCK, BlockIds::SPRUCE_DOOR_BLOCK, BlockIds::BIRCH_DOOR_BLOCK, BlockIds::JUNGLE_DOOR_BLOCK, BlockIds::ACACIA_DOOR_BLOCK, BlockIds::DARK_OAK_DOOR_BLOCK, BlockIds::OAK_DOOR_BLOCK];
     private $session;
     private $prefs;
     private $locked;
@@ -33,9 +33,9 @@ class Main extends PluginBase implements CommandExecutor, Listener {
         $this->tasks = [];
 
         $this->prefs = new Config($this->getDataFolder() . "prefs.yml", CONFIG::YAML, array(
-            "TakeKey" => true,
+            "TakeKey" => false,
             "AutoClose" => true,
-            "AllDoors" => true,
+            "AllDoors" => false,
             "Delay" => 5
         ));
 
@@ -90,9 +90,9 @@ class Main extends PluginBase implements CommandExecutor, Listener {
     }
 
     public function onPlayerInteract(PlayerInteractEvent $event) {
-        if ($event->isCancelled()) return;
+        if ($event->isCancelled()) return true;
         if (!($event->getBlock()->getId() === BlockIds::IRON_DOOR_BLOCK || (in_array($event->getBlock()->getId(), self::DOORIDS) && $this->prefs->get("AllDoors")))) {
-            return;
+            return true;
         }
 
         if (isset($this->session[$event->getPlayer()->getName()])) {
@@ -101,7 +101,7 @@ class Main extends PluginBase implements CommandExecutor, Listener {
             // if it's someone who is locking doors...
             if ($doorid === BlockIds::IRON_DOOR_BLOCK || (in_array($doorid, self::DOORIDS) && $this->prefs->get("AllDoors"))) {
                 $event->getPlayer()->sendMessage(TEXTFORMAT::RED . "Please Tap The Bootom Of The Door");
-                return;
+                return true;
             }
             $block = $event->getBlock();
             $keyid = $this->session[$event->getPlayer()->getName()];
@@ -127,39 +127,40 @@ class Main extends PluginBase implements CommandExecutor, Listener {
 
             //CHECK THE BLOCK ITSELF
 
-            if (isset($this->locked[$event->getBlock()->x . ":" . $event->getBlock()->y . ":" . $event->getBlock()->z . ":" . $event->getPlayer()->getLevel()->getName()])) {
+            if (isset($this->locked[$block->getX(). ":" . $block->getY() . ":" . $block->getZ() . ":" . $event->getPlayer()->getLevel()->getFolderName()])) {
                 //it's a locked door
 
-                $taskstring = $event->getBlock()->x . ":" . ($event->getBlock()->y) . ":" . $event->getBlock()->z . ":" . $event->getPlayer()->getLevel()->getName();
+                $taskstring = $block->getX() . ":" . ($block->getY()) . ":" . $block->getZ() . ":" . $event->getPlayer()->getLevel()->getFolderName();
 
                 if (in_array($taskstring, $this->tasks)) {
                     $event->setCancelled(true);
-                    return;
+                    return true;
                 }
 
-                $locked = $this->locked[$event->getBlock()->x . ":" . $event->getBlock()->y . ":" . $event->getBlock()->z . ":" . $event->getPlayer()->getLevel()->getName()];
-                $keyid = $locked["keyid"];
-
-                $event->getPlayer()->sendMessage(TextFormat::RED . "Click the Door's Top Panel To Unlock");
+                $event->getPlayer()->sendMessage(TextFormat::RED . "Click the Doors Top Panel To Unlock");
                 $event->setCancelled(true);
-                return;
+                return true;
             }
 
             //IF IT IS THE TOP PANEL
 
-            if (isset($this->locked[$event->getBlock()->x . ":" . ($event->getBlock()->y - 1) . ":" . $event->getBlock()->z . ":" . $event->getPlayer()->getLevel()->getName()])) {
+            if (isset($this->locked[$block->getX() . ":" . ($block->getY() - 1) . ":" . $block->getZ() . ":" . $event->getPlayer()->getLevel()->getFolderName()])) {
                 //it's a locked door
 
-                $locked = $this->locked[$event->getBlock()->x . ":" . ($event->getBlock()->y - 1) . ":" . $event->getBlock()->z . ":" . $event->getPlayer()->getLevel()->getName()];
+                $locked = $this->locked[$block->getX() . ":" . ($block->getY() - 1) . ":" . $block->getZ() . ":" . $event->getPlayer()->getLevel()->getFolderName()];
                 $keyid = $locked["keyid"];
-
                 if ($inhand->getId() == $keyid) {
                     //open door for DELAY seconds
 
-                    $belowblock = $block->getLevel()->getBlock(new Vector3($event->getBlock()->getX(), $event->getBlock()->getY() - 1, $event->getBlock()->getZ()));
+                    $belowblock = $block->getLevel()->getBlock(new Vector3($block->getX(), $block->getY() - 1, $block->getZ()));
+
+                    if ($this->prefs->get("TakeKey")) {
+                        --$inhand->count;
+                        $inv->setItemInHand($inhand);
+                    }
 
                     if ($this->prefs->get("AutoClose")) {
-                        $taskstring = $event->getBlock()->x . ":" . ($event->getBlock()->y - 1) . ":" . $event->getBlock()->z . ":" . $event->getPlayer()->getLevel()->getName();
+                        $taskstring = $block->getX() . ":" . ($block->getY() - 1) . ":" . $block->getZ() . ":" . $event->getPlayer()->getLevel()->getFolderName();
 
                         if (!(in_array($taskstring, $this->tasks))) {
 
@@ -169,28 +170,17 @@ class Main extends PluginBase implements CommandExecutor, Listener {
                             $this->tasks[$taskstring] = $taskstring;
                         } else {
                             $event->setCancelled(true);
-                            return;
+                            return true;
                         }
                     }
 
-                    if ($this->prefs->get("TakeKey")) {
-                        --$inhand->count;
-                        $inv->setItemInHand($inhand);
-
-//                      CHANGE DOOR OPEN/CLOSE MANUALLY??
-
-                        $newbit = $belowblock->getDamage() ^ 0x4;
-                        $belowblock->setDamage($newbit);
-                        $done = $event->getBlock()->getLevel()->setBlock(new Vector3($belowblock->getX(), $belowblock->getY(), $belowblock->getZ()), clone $belowblock, true, true);
-                    }
-
-                    return;
                 } else {
                     $event->getPlayer()->sendMessage(TextFormat::RED . "You don't have the key ");
                     $event->setCancelled(true);
                 }
             }
         }
+        return true;
     }
 
     public function onBlockBreak(BlockBreakEvent $event) {
@@ -224,7 +214,7 @@ class Main extends PluginBase implements CommandExecutor, Listener {
             $owner = $locked["owner"];
 
             if (!($player->hasPermission("lockit.admin") || (strtolower($owner) === strtolower($player->getName())))) {
-                $player->sendMessage("You do not have permission to break this door. Owner: " . $player->getNmae());
+                $player->sendMessage("You do not have permission to break this door. Owner: " . $player->getName());
                 $event->setCancelled(true);
                 return;
             }

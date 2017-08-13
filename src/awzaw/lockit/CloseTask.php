@@ -21,14 +21,9 @@ class CloseTask extends PluginTask {
 
     public function onRun(int $tick) {
 
-        $newdoor = Block::get($this->block->getId());
-
-        $newbit = $this->block->getDamage() ^ 0x4;
-        $this->block->setDamage($newbit);
-
         $this->block->getLevel()->addSound(new DoorSound($this->block));
 
-        $this->block->getLevel()->setBlock(new Vector3($this->block->getX(), $this->block->getY(), $this->block->getZ()), $this->block, true);
+        $this->block->getLevel()->setBlock(new Vector3($this->block->getX(), $this->block->getY(), $this->block->getZ()), $this->block, true, true);
         $taskstring = $this->block->getX() . ":" . $this->block->getY() . ":" . $this->block->getZ() . ":" . $this->block->getLevel()->getName();
         unset($this->getOwner()->tasks[$taskstring]);
     }
