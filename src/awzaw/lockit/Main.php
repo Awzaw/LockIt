@@ -100,7 +100,7 @@ class Main extends PluginBase implements CommandExecutor, Listener {
             $doorid = $event->getBlock()->getLevel()->getBlock(new vector3($event->getBlock()->getX(), $event->getBlock()->getY() - 1, $event->getBlock()->getZ()))->getId();
             // if it's someone who is locking doors...
             if ($doorid === BlockIds::IRON_DOOR_BLOCK || (in_array($doorid, self::DOORIDS) && $this->prefs->get("AllDoors"))) {
-                $event->getPlayer()->sendMessage(TEXTFORMAT::RED . "Please Tap The Bootom Of The Door");
+                $event->getPlayer()->sendMessage(TEXTFORMAT::RED . "Please Tap The Bottom Of The Door");
                 return true;
             }
             $block = $event->getBlock();
@@ -137,7 +137,7 @@ class Main extends PluginBase implements CommandExecutor, Listener {
                     return true;
                 }
 
-                $event->getPlayer()->sendMessage(TextFormat::RED . "Click the Doors Top Panel To Unlock");
+                $event->getPlayer()->sendMessage(TextFormat::RED . "Click the Top Panel To Unlock");
                 $event->setCancelled(true);
                 return true;
             }
@@ -231,4 +231,8 @@ class Main extends PluginBase implements CommandExecutor, Listener {
         $lockedYml->save();
     }
 
+    // ** API **
+    public function isLockedByLockit(int $x, int $y, int $z, string $levelname): bool {
+        return isset($this->locked[$x . ":" . $y . ":" . $z . ":" . $levelname]);
+    }
 }
