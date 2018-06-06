@@ -165,7 +165,7 @@ class Main extends PluginBase implements CommandExecutor, Listener {
                         if (!(in_array($taskstring, $this->tasks))) {
 
                             $task = new CloseTask($this, $belowblock);
-                            $taskid = $this->getServer()->getScheduler()->scheduleDelayedTask($task, 20 * $this->prefs->get("Delay"));
+                            $taskid = $this->getScheduler()->scheduleDelayedTask($task, 20 * $this->prefs->get("Delay"));
                             $task->setHandler($taskid);
                             $this->tasks[$taskstring] = $taskstring;
                         } else {
